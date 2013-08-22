@@ -40,7 +40,7 @@ class Admin::ContentController < Admin::BaseController
   def merge
     @article = Article.find_by_id(params.fetch(:article_id))
     flash.keep
-    if @article.merge_with(params.fetch(:article_to_merge_id))
+    if @article.merge_with(params.fetch(:merge_with))
       flash[:notice] = _("Successfully merge articles")
     else
       flash[:error] = _("Unsuccessfully merge articles")

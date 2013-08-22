@@ -676,7 +676,7 @@ describe Admin::ContentController do
         article = Factory(:article, :user => Factory(:user, :login => Factory(:user, :login => 'other_user')))
         article.stub(:merge_with) { true }
         Article.stub(:find_by_id) { article }
-        post :merge, :article_id => article.id, :article_to_merge_id => article.id
+        post :merge, :article_id => article.id, :merge_with => article.id
         response.should redirect_to(:action => 'index')
       end
 

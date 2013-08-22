@@ -37,7 +37,7 @@ Feature: Merge articles
     Given I am logged into the admin panel 
     When I follow "All Articles"
     And I follow "Foobar"
-    And I fill in "article_to_merge_id" with "4"
+    And I fill in "merge_with" with "4"
     And I press "Merge With This Article"
     Then I should see "Successfully merge articles"
     When I follow "Foobar Foobar1"

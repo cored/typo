@@ -4,7 +4,7 @@
      <ul id='merge' class='inputs-list'>
        <%= form_tag(:action => "merge" ) do %>
          <%= hidden_field_tag 'article_id', article_id %>
-         <p>Article ID</p><%= text_field_tag :article_to_merge_id %>
+         <p>Article ID</p><%= text_field_tag :merge_with %>
           <%= submit_tag("Merge With This Article") %>
         <% end %>
     </ul>
