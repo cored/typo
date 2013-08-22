@@ -74,14 +74,10 @@ class Article < Content
   def merge_with(article_to_merge_id)
     article_to_merge = Article.find_by_id(article_to_merge_id)
     return false unless article_to_merge
-    new_article = Article.new(
-      title:"#{title} #{article_to_merge.title}",
-      author:"#{author} #{article_to_merge.author}",
-      body:"#{body} #{article_to_merge.body}"
-    )
-    new_article.comments = comments + article_to_merge.comments
-    new_article.published = true
-    new_article.save!
+    new_article = build_new_article_for(article_to_merge)
+    add_comments_to_new_article(new_article, article_to_merge)
+    article_to_merge.destroy
+    destroy
   end
 
   def set_permalink
@@ -478,5 +474,26 @@ class Article < Content
     to = from + 1.day unless day.blank?
     to = to - 1 # pull off 1 second so we don't overlap onto the next day
     return from..to
+  end
+
+  private 
+  def add_comments_to_new_article(new_article, article_to_merge)
+    (comments + article_to_merge.comments).each do |comment|
+      comment.article = new_article
+      new_article.comments.build comment.attributes
+    end
+    new_article.save!
+  end
+
+  def build_new_article_for(article_to_merge)
+    new_article = Article.new(
+      title:"#{title} #{article_to_merge.title}",
+      author:"#{author}",
+      body:"#{body} #{article_to_merge.body}",
+      user: user
+    )
+    new_article.published = true
+    new_article.user = user
+    new_article
   end
 end
