@@ -13,7 +13,7 @@ class Admin::ContentController < Admin::BaseController
 
   def index
     @search = params[:search] ? params[:search] : {}
-    
+
     @articles = Article.search_with_pagination(@search, {:page => params[:page], :per_page => this_blog.admin_display_elements})
 
     if request.xhr?
@@ -37,6 +37,17 @@ class Admin::ContentController < Admin::BaseController
     new_or_edit
   end
 
+  def merge
+    @article = Article.find_by_id(params.fetch(:article_id))
+    flash.keep
+    if @article.merge_with(params.fetch(:article_to_merge_id))
+      flash[:notice] = _("Successfully merge articles")
+    else
+      flash[:error] = _("Unsuccessfully merge articles")
+    end
+    redirect_to :action => 'index'
+  end
+
   def destroy
     @record = Article.find(params[:id])
 
@@ -44,7 +55,7 @@ class Admin::ContentController < Admin::BaseController
       flash[:error] = _("Error, you are not allowed to perform this action")
       return(redirect_to :action => 'index')
     end
-    
+
     return(render 'admin/shared/destroy') unless request.post?
 
     @record.destroy
@@ -69,8 +80,8 @@ class Admin::ContentController < Admin::BaseController
     render :update do |page|
       page["attachment_add_#{params[:id]}"].remove
       page.insert_html :bottom, 'attachments',
-          :partial => 'admin/content/attachment',
-          :locals => { :attachment_num => params[:id], :hidden => true }
+        :partial => 'admin/content/attachment',
+        :locals => { :attachment_num => params[:id], :hidden => true }
       page.visual_effect(:toggle_appear, "attachment_#{params[:id]}")
     end
   end
@@ -92,7 +103,7 @@ class Admin::ContentController < Admin::BaseController
     @article.text_filter = current_user.text_filter if current_user.simple_editor?
 
     get_fresh_or_existing_draft_for_article
-    
+
     @article.attributes = params[:article]
     @article.published = false
     set_article_author
@@ -159,13 +170,13 @@ class Admin::ContentController < Admin::BaseController
     @article.keywords = Tag.collection_to_string @article.tags
     @article.attributes = params[:article]
     # TODO: Consider refactoring, because double rescue looks... weird.
-        
+
     @article.published_at = DateTime.strptime(params[:article][:published_at], "%B %e, %Y %I:%M %p GMT%z").utc rescue Time.parse(params[:article][:published_at]).utc rescue nil
 
     if request.post?
       set_article_author
       save_attachments
-      
+
       @article.state = "draft" if @article.draft
 
       if @article.save

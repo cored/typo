@@ -629,6 +629,13 @@ describe Article do
       end
     end
 
+    context "#merge_with" do 
+      it "should merge two articles" do 
+        article = Factory.create(:article)
+        article.merge_with(article).should be_true
+      end
+    end
+
   end
 end
 
